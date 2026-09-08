@@ -152,10 +152,6 @@ def pill(x, y, value, w, color='ink', bg='paper', size=22):
     return f'<rect x="{x}" y="{y}" width="{w}" height="44" rx="22" fill="{P[bg]}"/>' + text(x+w/2,y+29,value,size,color,extra='text-anchor="middle"')
 
 
-def hero_shield(x, y, width, height):
-    return f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="15" fill="#FFF9EF" stroke="#DDCDBB"/>'+shield_art(ROOT/'assets/security scan.svg',x+5,y+4,width-10,height-8)
-
-
 def hero(mobile=False):
     if mobile:
         w,h=600,930
@@ -171,8 +167,7 @@ def hero(mobile=False):
         body += sprig(63,677,1,True)+flower(128,660,.75,motion=True)+flower(64,720,.5)
         body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
-        body += hero_shield(491,818,82,88)
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint, floating sparkles and an animated scanning shield. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint and floating sparkles. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
@@ -189,8 +184,7 @@ def hero(mobile=False):
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
-    body += hero_shield(863,458,88,98)
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint, floating sparkles and an animated scanning shield. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint and floating sparkles. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
 
 
 def section(name, heading, note):
