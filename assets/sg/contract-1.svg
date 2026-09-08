@@ -1,6 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="301" viewBox="0 0 1000 301" role="img" aria-labelledby="title desc">
 <title id="title">DeepAttend — Attendance demo</title><desc id="desc">A webcam attendance demo with face enrollment, student records and an admin dashboard. Built with Next.js / React / TypeScript. Select this card to explore the repository.</desc>
-<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}</style></defs>
+<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}
+.breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
+.petals{transform-origin:0 0;animation:petals 12s ease-in-out infinite}
+.arch-glint{opacity:0;animation:arch-glint 16s ease-in-out infinite}
+.sun-dust{opacity:.35;animation:sun-dust 10s ease-in-out infinite}
+.sun-dust.late{animation-delay:-4s}
+.sun-dust.later{animation-delay:-7s}
+.scan-light{opacity:0;animation:scan-light 8s ease-in-out infinite}
+.shield-light{opacity:0;animation:shield-light 11s ease-in-out infinite}
+@keyframes breeze{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes petals{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes arch-glint{0%,8%{stroke-dashoffset:100;opacity:0}16%{opacity:.8}64%{stroke-dashoffset:0;opacity:.8}72%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes sun-dust{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:.7}}
+@keyframes scan-light{0%,12%{transform:translateY(0);opacity:0}20%{opacity:.4}62%{transform:translateY(60px);opacity:.4}70%,100%{transform:translateY(60px);opacity:0}}
+@keyframes shield-light{0%,15%{stroke-dashoffset:100;opacity:0}24%{opacity:.65}70%{stroke-dashoffset:0;opacity:.65}80%,100%{stroke-dashoffset:0;opacity:0}}
+@media(prefers-reduced-motion:reduce){.breeze,.petals,.arch-glint,.sun-dust,.scan-light,.shield-light{animation:none!important}}
+</style></defs>
 <rect width="1000" height="301" rx="24" fill="#FFF9EF"/>
-<text x="42" y="56" class="body" font-size="22" fill="#B65F76" >Attendance demo</text><text x="40" y="117" class="display" font-size="48" fill="#243F52" >DeepAttend</text><text x="42" y="164" class="body" font-size="23" fill="#596A70" >A webcam attendance demo with face enrollment,</text><text x="42" y="198" class="body" font-size="23" fill="#596A70" >student records and an admin dashboard.</text><text x="42" y="248" class="body" font-size="21" fill="#243F52" >Next.js / React / TypeScript</text><rect x="735" y="229" width="223" height="44" rx="22" fill="#243F52"/><text x="846.5" y="258" class="body" font-size="21" fill="#FFF9EF" text-anchor="middle">Explore repository</text><rect x="735" y="34" width="223" height="166" rx="16" fill="#DCEFF6"/><rect x="754" y="53" width="185" height="126" rx="10" fill="#FFF9EF"/><g stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/><circle cx="902" cy="153" r="17" fill="#52755F"/><path d="M894 153L900 159L911 146" fill="none" stroke="#FFF9EF" stroke-width="3"/>
+<text x="42" y="56" class="body" font-size="22" fill="#B65F76" >Attendance demo</text><text x="40" y="117" class="display" font-size="48" fill="#243F52" >DeepAttend</text><text x="42" y="164" class="body" font-size="23" fill="#596A70" >A webcam attendance demo with face enrollment,</text><text x="42" y="198" class="body" font-size="23" fill="#596A70" >student records and an admin dashboard.</text><text x="42" y="248" class="body" font-size="21" fill="#243F52" >Next.js / React / TypeScript</text><rect x="735" y="229" width="223" height="44" rx="22" fill="#243F52"/><text x="846.5" y="258" class="body" font-size="21" fill="#FFF9EF" text-anchor="middle">Explore repository</text><g transform="translate(735 34) scale(1) translate(-735 -34)"><rect x="735" y="34" width="223" height="166" rx="16" fill="#DCEFF6"/><rect x="754" y="53" width="185" height="126" rx="10" fill="#FFF9EF"/><g stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/><path class="scan-light" d="M789 84H903" stroke="#52755F" stroke-width="2" stroke-linecap="round"/><circle cx="902" cy="153" r="17" fill="#52755F"/><path d="M894 153L900 159L911 146" fill="none" stroke="#FFF9EF" stroke-width="3"/></g>
 </svg>

@@ -15,6 +15,12 @@ The profile uses the supplied portrait as its visual starting point: the bright 
 
 Georgia gives headings a personal, storybook feel. Trebuchet MS, with Arial as fallback, keeps body text clear. No remote fonts, scripts, foreignObject, or external image services are required. Light artwork deliberately retains its own palette in both GitHub themes. Mobile artwork is selected with standard picture/source markup.
 
+## A little movement
+
+Self-contained CSS animations add a slow sunlight glint along the portrait arch, a few drifting gold specks, gently turning flower petals and a swaying botanical sprig. The DeepAttend illustration has a soft scan line; CodeGuardian has a slowly traced shield. The same small illustrations appear on the mobile project cards.
+
+Text, portrait pixels and contribution data remain stationary. All motion follows `prefers-reduced-motion`: with that preference enabled, the decorative effects stop and the complete static design remains visible. The README’s links provide interaction through the clickable project and contact cards. There are no JavaScript or hover-dependent controls inside the SVG images.
+
 ## Editing
 
 - `scripts/build_assets.py`: artwork, intro, toolkit and project-card text.

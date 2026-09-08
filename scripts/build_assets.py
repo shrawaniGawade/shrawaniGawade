@@ -8,26 +8,58 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'sg'
 P = dict(paper='#FFF9EF', ink='#243F52', rose='#B65F76', muted='#596A70', sky='#DCEFF6', gold='#B98941', green='#52755F', blush='#F4E2DF', line='#DDCDBB')
 
+# Animate decorative layers only. The portrait, typography and data stay still.
+MOTION = '''
+.breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
+.petals{transform-origin:0 0;animation:petals 12s ease-in-out infinite}
+.arch-glint{opacity:0;animation:arch-glint 16s ease-in-out infinite}
+.sun-dust{opacity:.35;animation:sun-dust 10s ease-in-out infinite}
+.sun-dust.late{animation-delay:-4s}
+.sun-dust.later{animation-delay:-7s}
+.scan-light{opacity:0;animation:scan-light 8s ease-in-out infinite}
+.shield-light{opacity:0;animation:shield-light 11s ease-in-out infinite}
+@keyframes breeze{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes petals{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes arch-glint{0%,8%{stroke-dashoffset:100;opacity:0}16%{opacity:.8}64%{stroke-dashoffset:0;opacity:.8}72%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes sun-dust{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:.7}}
+@keyframes scan-light{0%,12%{transform:translateY(0);opacity:0}20%{opacity:.4}62%{transform:translateY(60px);opacity:.4}70%,100%{transform:translateY(60px);opacity:0}}
+@keyframes shield-light{0%,15%{stroke-dashoffset:100;opacity:0}24%{opacity:.65}70%{stroke-dashoffset:0;opacity:.65}80%,100%{stroke-dashoffset:0;opacity:0}}
+@media(prefers-reduced-motion:reduce){.breeze,.petals,.arch-glint,.sun-dust,.scan-light,.shield-light{animation:none!important}}
+'''
+
 
 def text(x, y, value, size=24, color='ink', font='body', extra=''):
     return f'<text x="{x}" y="{y}" class="{font}" font-size="{size}" fill="{P.get(color, color)}" {extra}>{escape(value)}</text>'
 
 
-def flower(x, y, scale=1, color='rose'):
+def flower(x, y, scale=1, color='rose', motion=False):
     petals = ''.join(f'<ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate({a})"/>' for a in range(0, 360, 60))
+    if motion:
+        petals = f'<g class="petals">{petals}</g>'
     return f'<g transform="translate({x} {y}) scale({scale})" fill="none" stroke="{P[color]}" stroke-width="1.5">{petals}<circle r="5" fill="{P["gold"]}" stroke="none"/></g>'
 
 
-def sprig(x, y, scale=1):
+def sprig(x, y, scale=1, motion=False):
     return f'''<g transform="translate({x} {y}) scale({scale})" fill="none" stroke="{P['green']}" stroke-width="2.5" stroke-linecap="round">
+    <g{(' class="breeze"' if motion else '')}>
     <path d="M0 150 Q12 80 64 0"/><path d="M20 92 Q-19 72 -8 47 Q28 53 20 92Z" fill="{P['green']}" opacity=".22"/>
     <path d="M32 63 Q70 66 79 34 Q47 26 32 63Z" fill="{P['green']}" opacity=".22"/>
-    <path d="M46 33 Q26 4 42 -14 Q67 2 46 33Z" fill="{P['green']}" opacity=".22"/></g>'''
+    <path d="M46 33 Q26 4 42 -14 Q67 2 46 33Z" fill="{P['green']}" opacity=".22"/></g></g>'''
+
+
+def arch_glint(path):
+    return f'<path d="{path}" class="arch-glint" pathLength="100" stroke-dasharray="9 91" fill="none" stroke="#FFE1A2" stroke-width="3" stroke-linecap="round"/>'
+
+
+def dust(x, y, delay=''):
+    return f'<g transform="translate({x} {y})"><g class="sun-dust {delay}" fill="#B98941"><path d="M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z"/><circle cx="12" cy="-16" r="1.6"/></g></g>'
 
 
 def svg(name, w, h, body, title, desc='', bg='paper', defs=''):
     OUT.mkdir(parents=True, exist_ok=True)
     style = '.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}'
+    if any(f'class="{name}' in body for name in ('breeze','petals','arch-glint','sun-dust','scan-light','shield-light')):
+        style += MOTION
     source = f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
 <title id="title">{escape(title)}</title><desc id="desc">{escape(desc or title)}</desc>
 <defs><style>{style}</style>{defs}</defs>
@@ -51,8 +83,11 @@ def hero(mobile=False):
         body += text(38,347,'Exploring web, AI & automation.',24,'muted')
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
         body += f'<image x="276" y="438" width="315" height="510" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait)" xlink:href="data:image/png;base64,{portrait}"/>'
+        arch='M301 905V571A137 137 0 0 1 575 571V905'
+        body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'+arch_glint(arch)
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
-        body += sprig(63,677,1)+flower(128,660,.75)+flower(64,720,.5)
+        body += sprig(63,677,1,True)+flower(128,660,.75,motion=True)+flower(64,720,.5)
+        body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
         svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — developer exploring web, AI and automation',defs=clip)
         return
@@ -60,12 +95,14 @@ def hero(mobile=False):
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
     body += f'<image x="560" y="40" width="395" height="530" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait)" xlink:href="data:image/png;base64,{portrait}"/>'
     body += '<path d="M564 555V228A193 193 0 0 1 950 228V555" fill="none" stroke="#B98941" stroke-width="1.5"/>'
+    body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
     body += text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')
     body += text(50,326,'Developer, with a curious mind.',25)
     body += text(50,372,'Exploring web, AI & automation.',23,'muted')
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
-    body += flower(499,69,.60)+flower(964,492,.6)
+    body += flower(499,69,.60,motion=True)+flower(964,492,.6,motion=True)
+    body += dust(973,188)+dust(568,382,'late')+dust(962,365,'later')
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
@@ -124,6 +161,21 @@ def equipment(mobile=False):
     svg('equipment.svg',w,323,body,'Toolkit: TypeScript, JavaScript, Java, React, Next.js, Tailwind CSS, HTML, CSS, Node.js and Git')
 
 
+def project_illustration(which,x,y,scale=1):
+    body = f'<g transform="translate({x} {y}) scale({scale}) translate(-735 -34)">'
+    if which==1:
+        body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#DCEFF6"/><rect x="754" y="53" width="185" height="126" rx="10" fill="#FFF9EF"/>'
+        body+='<g stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/>'
+        body+='<path class="scan-light" d="M789 84H903" stroke="#52755F" stroke-width="2" stroke-linecap="round"/>'
+        body+='<circle cx="902" cy="153" r="17" fill="#52755F"/><path d="M894 153L900 159L911 146" fill="none" stroke="#FFF9EF" stroke-width="3"/>'
+    else:
+        shield='M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z'
+        body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#F4E2DF"/>'
+        body+=f'<path d="{shield}" fill="#FFF9EF" stroke="#B98941" stroke-width="2"/><path class="shield-light" d="{shield}" pathLength="100" stroke-dasharray="26 74" fill="none" stroke="#B65F76" stroke-width="3" stroke-linecap="round"/>'
+        body+='<g stroke="#243F52" stroke-width="3" stroke-linecap="round" fill="none"><path d="M838 101L825 115L838 129M855 101L868 115L855 129"/></g>'
+    return body+'</g>'
+
+
 def project(which,mobile=False):
     first=which==1
     title='DeepAttend' if first else 'CodeGuardian'
@@ -135,28 +187,23 @@ def project(which,mobile=False):
         ml=['A webcam attendance demo with face','enrollment, student records and an','admin dashboard.'] if first else ['A dashboard and findings API for','tracking web application issues.','A work in progress.']
         for i,l in enumerate(ml):body+=text(32,172+i*35,l,24,'muted')
         body+=text(32,302,tech,22)+pill(32,337,'Explore repository',234,bg='ink',color='paper',size=22)
+        body+=project_illustration(which,468,330,.4)
         svg(f'contract-{which}-mobile.svg',600,416,body,title+' — '+category)
         return
     body=text(42,56,category,22,'rose')+text(40,117,title,48,font='display')
     for i,l in enumerate(lines):body+=text(42,164+i*34,l,23,'muted')
     body+=text(42,248,tech,21)+pill(735,229,'Explore repository',223,bg='ink',color='paper',size=21)
-    if first:
-        body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#DCEFF6"/><rect x="754" y="53" width="185" height="126" rx="10" fill="#FFF9EF"/>'
-        body+='<g stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/>'
-        body+='<circle cx="902" cy="153" r="17" fill="#52755F"/><path d="M894 153L900 159L911 146" fill="none" stroke="#FFF9EF" stroke-width="3"/>'
-    else:
-        body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#F4E2DF"/><path d="M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z" fill="#FFF9EF" stroke="#B98941" stroke-width="2"/>'
-        body+='<g stroke="#243F52" stroke-width="3" stroke-linecap="round" fill="none"><path d="M838 101L825 115L838 129M855 101L868 115L855 129"/></g>'
+    body+=project_illustration(which,735,34)
     svg(f'contract-{which}.svg',1000,301,body,title+' — '+category,' '.join(lines)+' Built with '+tech+'. Select this card to explore the repository.')
 
 
 def finishing():
     body=text(44,63,'Good things start with a conversation.',35,font='display')+text(44,113,'Explore my work, share an idea, or follow along on GitHub.',23,'muted')
-    body+=pill(44,148,'Find me on GitHub',247,bg='ink',color='paper',size=22)+sprig(850,55,.8)+flower(901,51,.65)
+    body+=pill(44,148,'Find me on GitHub',247,bg='ink',color='paper',size=22)+sprig(850,55,.8,True)+flower(901,51,.65,motion=True)
     svg('contact.svg',1000,238,body,'Connect with Shrawani Gawade on GitHub')
     body=text(32,58,'Let’s connect.',37,font='display')+text(32,108,'Explore my work, share an idea,',24,'muted')+text(32,143,'or follow along on GitHub.',24,'muted')+pill(32,179,'Find me on GitHub',247,bg='ink',color='paper',size=22)
     svg('contact-mobile.svg',600,260,body,'Connect with Shrawani Gawade on GitHub')
-    body='<path d="M40 38H454M546 38H960" stroke="#DDCDBB"/>'+flower(500,38,.8)
+    body='<path d="M40 38H454M546 38H960" stroke="#DDCDBB"/>'+flower(500,38,.8,motion=True)
     svg('divider.svg',1000,76,body,'A rose flower divider')
     body=text(500,61,'Still learning. Still blooming.',40,font='display',extra='text-anchor="middle"')+text(500,111,'Thanks for stopping by my little corner of GitHub.',22,'muted',extra='text-anchor="middle"')+text(500,158,'Shrawani Gawade',24,'rose',font='display',extra='text-anchor="middle"')
     svg('complete.svg',1000,198,body,'Still learning. Still blooming. Thanks for visiting Shrawani Gawade’s GitHub.')

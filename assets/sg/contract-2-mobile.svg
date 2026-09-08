@@ -1,6 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="416" viewBox="0 0 600 416" role="img" aria-labelledby="title desc">
 <title id="title">CodeGuardian — Security dashboard prototype</title><desc id="desc">CodeGuardian — Security dashboard prototype</desc>
-<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}</style></defs>
+<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}
+.breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
+.petals{transform-origin:0 0;animation:petals 12s ease-in-out infinite}
+.arch-glint{opacity:0;animation:arch-glint 16s ease-in-out infinite}
+.sun-dust{opacity:.35;animation:sun-dust 10s ease-in-out infinite}
+.sun-dust.late{animation-delay:-4s}
+.sun-dust.later{animation-delay:-7s}
+.scan-light{opacity:0;animation:scan-light 8s ease-in-out infinite}
+.shield-light{opacity:0;animation:shield-light 11s ease-in-out infinite}
+@keyframes breeze{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes petals{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes arch-glint{0%,8%{stroke-dashoffset:100;opacity:0}16%{opacity:.8}64%{stroke-dashoffset:0;opacity:.8}72%,100%{stroke-dashoffset:0;opacity:0}}
+@keyframes sun-dust{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:.7}}
+@keyframes scan-light{0%,12%{transform:translateY(0);opacity:0}20%{opacity:.4}62%{transform:translateY(60px);opacity:.4}70%,100%{transform:translateY(60px);opacity:0}}
+@keyframes shield-light{0%,15%{stroke-dashoffset:100;opacity:0}24%{opacity:.65}70%{stroke-dashoffset:0;opacity:.65}80%,100%{stroke-dashoffset:0;opacity:0}}
+@media(prefers-reduced-motion:reduce){.breeze,.petals,.arch-glint,.sun-dust,.scan-light,.shield-light{animation:none!important}}
+</style></defs>
 <rect width="600" height="416" rx="24" fill="#FFF9EF"/>
-<text x="32" y="54" class="body" font-size="23" fill="#B65F76" >Security dashboard prototype</text><text x="30" y="112" class="display" font-size="48" fill="#243F52" >CodeGuardian</text><text x="32" y="172" class="body" font-size="24" fill="#596A70" >A dashboard and findings API for</text><text x="32" y="207" class="body" font-size="24" fill="#596A70" >tracking web application issues.</text><text x="32" y="242" class="body" font-size="24" fill="#596A70" >A work in progress.</text><text x="32" y="302" class="body" font-size="22" fill="#243F52" >Next.js / NestJS / TypeScript</text><rect x="32" y="337" width="234" height="44" rx="22" fill="#243F52"/><text x="149.0" y="366" class="body" font-size="22" fill="#FFF9EF" text-anchor="middle">Explore repository</text>
+<text x="32" y="54" class="body" font-size="23" fill="#B65F76" >Security dashboard prototype</text><text x="30" y="112" class="display" font-size="48" fill="#243F52" >CodeGuardian</text><text x="32" y="172" class="body" font-size="24" fill="#596A70" >A dashboard and findings API for</text><text x="32" y="207" class="body" font-size="24" fill="#596A70" >tracking web application issues.</text><text x="32" y="242" class="body" font-size="24" fill="#596A70" >A work in progress.</text><text x="32" y="302" class="body" font-size="22" fill="#243F52" >Next.js / NestJS / TypeScript</text><rect x="32" y="337" width="234" height="44" rx="22" fill="#243F52"/><text x="149.0" y="366" class="body" font-size="22" fill="#FFF9EF" text-anchor="middle">Explore repository</text><g transform="translate(468 330) scale(0.4) translate(-735 -34)"><rect x="735" y="34" width="223" height="166" rx="16" fill="#F4E2DF"/><path d="M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z" fill="#FFF9EF" stroke="#B98941" stroke-width="2"/><path class="shield-light" d="M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z" pathLength="100" stroke-dasharray="26 74" fill="none" stroke="#B65F76" stroke-width="3" stroke-linecap="round"/><g stroke="#243F52" stroke-width="3" stroke-linecap="round" fill="none"><path d="M838 101L825 115L838 129M855 101L868 115L855 129"/></g></g>
 </svg>
