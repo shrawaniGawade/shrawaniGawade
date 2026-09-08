@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1000" height="301" viewBox="0 0 1000 301" role="img" aria-labelledby="title desc">
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="301" viewBox="0 0 1000 301" role="img" aria-labelledby="title desc">
 <title id="title">CodeGuardian — Security dashboard prototype</title><desc id="desc">A dashboard and findings API for tracking web application issues. A work in progress. Built with Next.js / NestJS / TypeScript. Select this card to explore the repository.</desc>
 <defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}
 .breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}

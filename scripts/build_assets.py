@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Rebuild the original, self-contained profile artwork. Python standard library only."""
-from base64 import b64encode
 from html import escape
 from pathlib import Path
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'sg'
@@ -55,12 +55,25 @@ def dust(x, y, delay=''):
     return f'<g transform="translate({x} {y})"><g class="sun-dust {delay}" fill="#B98941"><path d="M0 -6Q1 -1 6 0Q1 1 0 6Q-1 1 -6 0Q-1 -1 0 -6Z"/><circle cx="12" cy="-16" r="1.6"/></g></g>'
 
 
+def portrait_art(x, y, width, height):
+    """Inline real vector geometry; no SVG image element or bitmap payload."""
+    ET.register_namespace('', 'http://www.w3.org/2000/svg')
+    root = ET.parse(OUT / 'portrait.svg').getroot()
+    for element in root.iter():
+        if element.tag.rsplit('}', 1)[-1] in {'image', 'foreignObject', 'script'}:
+            raise ValueError('The portrait must contain native SVG geometry only.')
+    viewbox = escape(root.attrib['viewBox'], quote=True)
+    markup = ET.tostring(root, encoding='unicode')
+    geometry = markup.partition('>')[2].rsplit('</svg>', 1)[0]
+    return f'<g clip-path="url(#portrait)"><svg x="{x}" y="{y}" width="{width}" height="{height}" viewBox="{viewbox}" preserveAspectRatio="xMidYMid slice" overflow="hidden" aria-hidden="true">{geometry}</svg></g>'
+
+
 def svg(name, w, h, body, title, desc='', bg='paper', defs=''):
     OUT.mkdir(parents=True, exist_ok=True)
     style = '.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}'
     if any(f'class="{name}' in body for name in ('breeze','petals','arch-glint','sun-dust','scan-light','shield-light')):
         style += MOTION
-    source = f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
+    source = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
 <title id="title">{escape(title)}</title><desc id="desc">{escape(desc or title)}</desc>
 <defs><style>{style}</style>{defs}</defs>
 <rect width="{w}" height="{h}" rx="24" fill="{P[bg]}"/>
@@ -74,7 +87,6 @@ def pill(x, y, value, w, color='ink', bg='paper', size=22):
 
 
 def hero(mobile=False):
-    portrait = b64encode((OUT / 'portrait.png').read_bytes()).decode()
     if mobile:
         w,h=600,930
         clip='<clipPath id="portrait"><path d="M310 905V571A128 128 0 0 1 566 571V905Z"/></clipPath>'
@@ -82,7 +94,7 @@ def hero(mobile=False):
         body += text(38,291,'Developer, with a curious mind.',25)
         body += text(38,347,'Exploring web, AI & automation.',24,'muted')
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
-        body += f'<image x="276" y="438" width="315" height="510" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait)" xlink:href="data:image/png;base64,{portrait}"/>'
+        body += portrait_art(276,438,315,510)
         arch='M301 905V571A137 137 0 0 1 575 571V905'
         body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'+arch_glint(arch)
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
@@ -93,7 +105,7 @@ def hero(mobile=False):
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
-    body += f'<image x="560" y="40" width="395" height="530" preserveAspectRatio="xMidYMid slice" clip-path="url(#portrait)" xlink:href="data:image/png;base64,{portrait}"/>'
+    body += portrait_art(560,40,395,530)
     body += '<path d="M564 555V228A193 193 0 0 1 950 228V555" fill="none" stroke="#B98941" stroke-width="1.5"/>'
     body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
     body += text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')
