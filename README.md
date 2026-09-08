@@ -3,7 +3,7 @@
 <div align="center">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/sg/hero-mobile.svg"/>
-    <img src="assets/sg/hero.svg" alt="Shrawani Gawade — Developer, with a curious mind. The sentence ending types and erases curious mind, creative spark and love for automation. A little code. A lot of curiosity." width="100%"/>
+    <img src="assets/sg/hero.svg" alt="Shrawani Gawade — Developer, with a curious mind. The sentence ending types and erases curious mind, sweet heart, creative spark, cute side and love for little things. A little code. A lot of curiosity." width="100%"/>
   </picture>
 </div>
 

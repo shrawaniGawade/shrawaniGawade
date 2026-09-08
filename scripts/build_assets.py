@@ -45,7 +45,7 @@ HERO_MOTION = """
 @media(prefers-reduced-motion:reduce){.hero-type-live{display:none}.hero-type-still{display:inline}.typing-clip,.typing-position,.typing-caret{animation:none!important}}
 """
 
-HERO_PHRASES = ('curious mind.', 'creative spark.', 'love for automation.')
+HERO_PHRASES = ('curious mind.', 'sweet heart.', 'creative spark.', 'cute side.', 'love for little things.')
 
 
 
@@ -95,7 +95,7 @@ def typing_timeline():
     """One shared character timeline for both text clipping and its caret."""
     phrase, time = 0, 2.6
     events = [(0, 0, len(HERO_PHRASES[0])), (time, 0, len(HERO_PHRASES[0]))]
-    for following in (1, 2, 0):
+    for following in (*range(1, len(HERO_PHRASES)), 0):
         for count in range(len(HERO_PHRASES[phrase]) - 1, -1, -1):
             time += .055
             events.append((round(time, 3), phrase, count))
@@ -165,7 +165,7 @@ def hero(mobile=False):
         body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
         body += text(38,870,'@shrawaniGawade',21,'muted')
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, creative spark and love for automation, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
@@ -179,7 +179,7 @@ def hero(mobile=False):
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, creative spark and love for automation, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
 
 
 def section(name, heading, note):
