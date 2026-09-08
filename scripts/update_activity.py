@@ -14,7 +14,6 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from html import escape
 import json
-from math import hypot
 import os
 from pathlib import Path
 import re
@@ -182,7 +181,7 @@ def stats_svg(data: dict, mobile=False) -> str:
 def snake_route(columns: int) -> list[tuple[int, int] | None]:
     """An orthogonal route; V/S turns are hidden in its movement.
 
-    Empty entries separate the 18-week bands for the renderer's fade transitions.
+    Empty entries let the complete tail leave before the next 18-week band begins.
     The same logical route works on the wide calendar and its mobile bands.
     """
     route = []
@@ -223,116 +222,45 @@ def snake_route(columns: int) -> list[tuple[int, int] | None]:
     return route
 
 
-def rounded_snake_path(points: list[tuple[float, float]], radius: float) -> tuple[str, float]:
-    """Round grid corners and measure the path for a consistent travel speed."""
-    vertices = [points[0]]
-    for before, point, after in zip(points, points[1:], points[2:]):
-        if ((point[0] - before[0]) * (after[1] - point[1]) !=
-                (point[1] - before[1]) * (after[0] - point[0])):
-            vertices.append(point)
-    vertices.append(points[-1])
-    path = [f'M{vertices[0][0]:.3f} {vertices[0][1]:.3f}']
-    length = 0.0
-    last = vertices[0]
-
-    def line(point):
-        nonlocal length, last
-        point = tuple(round(value, 3) for value in point)
-        length += hypot(point[0] - last[0], point[1] - last[1])
-        path.append(f'L{point[0]:.3f} {point[1]:.3f}')
-        last = point
-
-    for before, corner, after in zip(vertices, vertices[1:], vertices[2:]):
-        incoming = hypot(corner[0] - before[0], corner[1] - before[1])
-        outgoing = hypot(after[0] - corner[0], after[1] - corner[1])
-        r = min(radius, incoming / 2, outgoing / 2)
-        enter = (corner[0] + (before[0] - corner[0]) * r / incoming,
-                 corner[1] + (before[1] - corner[1]) * r / incoming)
-        leave = (corner[0] + (after[0] - corner[0]) * r / outgoing,
-                 corner[1] + (after[1] - corner[1]) * r / outgoing)
-        line(enter)
-        # Subpixel chords keep SVG stroke and motion-path distance calculations
-        # aligned; browsers otherwise flatten quadratic curves differently.
-        for step in range(1, 13):
-            t = step / 12
-            line(tuple((1 - t)**2 * enter[axis] + 2 * (1 - t) * t * corner[axis]
-                       + t**2 * leave[axis] for axis in (0, 1)))
-    line(vertices[-1])
-    return ''.join(path), length
+# Solid colors keep the head-to-tail shade order consistent over every day cell.
+SNAKE_SHADES = ('#335846', '#4C705B', '#66886F', '#83A08A',
+                '#A0B7A0', '#B9CBB6', '#CDD9C8', '#DFE6D9')
+SNAKE_STEP_SECONDS = .16
 
 
-def garden_snake(columns: int, mobile=False) -> str:
-    """A short tapered stroke and native motion-path head, with no drawn route."""
+def garden_snake(days: list[dict], anchor: date, columns: int, mobile=False) -> str:
+    """Grid-sized pixels, darkest at the head and progressively lighter behind."""
+    route = snake_route(columns)
+    occupied = {((date.fromisoformat(day['date']) - anchor).days // 7,
+                 day['weekday']) for day in days}
     gap, size = (26, 21) if mobile else (min(16.4, 864 / columns), 12.6)
-    logical_bands, band = [], []
-    for point in snake_route(columns):
+    radius = 4 if mobile else 3.1
+    duration = len(route) * SNAKE_STEP_SECONDS
+    frames = []
+    for index, point in enumerate(route):
+        x, y, visible = 0, 0, int(point in occupied)
         if point is not None:
-            band.append(point)
-        elif band:
-            logical_bands.append(band)
-            band = []
-    plans, cursor = [], 0.0
-    for logical in logical_bands:
-        points = []
-        for column, row in logical:
+            column, row = point
             if mobile:
-                points.append((88 + (column % 18) * gap + size / 2,
-                               145 + (column // 18) * 241 + row * gap + size / 2))
+                x = 88 + (column % 18) * gap
+                y = 145 + (column // 18) * 241 + row * gap
             else:
-                points.append((87 + column * gap + size / 2, 140 + row * gap + size / 2))
-        path, length = rounded_snake_path(points, gap * .34)
-        tail = min(gap * 6.5, length * .3)
-        travel = length / gap * .19
-        clear = tail / gap * .19
-        plans.append(dict(path=path, tail=tail / length * 1000,
-                          start=cursor, end=cursor + travel, clear=cursor + travel + clear))
-        cursor += travel + clear + .45
-    duration = cursor
-    styles = [f'.garden-snake{{pointer-events:none}}',
-              f'.garden-snake-band,.garden-snake-head,.garden-snake-trail{{animation-duration:{duration:.4f}s;animation-timing-function:linear;animation-iteration-count:infinite}}',
-              '.garden-snake-band,.garden-snake-head{opacity:0}',
-              '@media(prefers-reduced-motion:reduce){.garden-snake{display:none}.garden-snake-band,.garden-snake-head,.garden-snake-trail{animation:none!important}}']
-    paths, body = [], []
-
-    def keyframes(name, values):
-        # Merge coincident start/end entries; CSS and SMIL share one timeline.
-        ordered = dict(sorted(values))
-        return '@keyframes ' + name + '{' + ''.join(
-            f'{time / duration * 100:.6f}%{{{value}}}' for time, value in ordered.items()) + '}'
-
-    for index, plan in enumerate(plans):
-        start, end, clear = plan['start'], plan['end'], plan['clear']
-        path_id = f'garden-snake-path-{index}'
-        paths.append(f'<path id="{path_id}" d="{plan["path"]}" pathLength="1000"/>')
-        styles.append(keyframes(f'snake-band-{index}', [
-            (0, 'opacity:0'), (start, 'opacity:0'), (start + .18, 'opacity:1'),
-            (clear - .18, 'opacity:1'), (clear, 'opacity:0'), (duration, 'opacity:0')]))
-        styles.append(keyframes(f'snake-head-{index}', [
-            (0, 'opacity:0'), (start, 'opacity:0'), (start + .18, 'opacity:1'),
-            (end - .16, 'opacity:1'), (end, 'opacity:0'), (duration, 'opacity:0')]))
-        body.append(f'<g class="garden-snake-band" style="animation-name:snake-band-{index}">')
-        # Overlapping rounded strokes create a narrow tail and a fuller neck.
-        for layer in range(8):
-            fraction = 1 - layer / 9
-            tail = plan['tail'] * fraction
-            name = f'snake-trail-{index}-{layer}'
-            styles.append(keyframes(name, [
-                (0, f'stroke-dashoffset:{tail:.4f}'),
-                (start, f'stroke-dashoffset:{tail:.4f}'),
-                (end, f'stroke-dashoffset:{tail - 1000:.4f}'),
-                (clear, f'stroke-dashoffset:{tail - 1000 - plan["tail"]:.4f}'),
-                (duration, f'stroke-dashoffset:{tail - 1000 - plan["tail"]:.4f}')]))
-            body.append(f'<use href="#{path_id}" class="garden-snake-trail" style="animation-name:{name}" fill="none" stroke="{GREEN}" stroke-width="{size * (.14 + layer * .046):.2f}" stroke-opacity=".26" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{tail:.4f} 2200" stroke-dashoffset="{tail:.4f}"/>')
-        times = {0: 0, start: 0, end: 1, duration: 1}
-        key_times = ';'.join(f'{time / duration:.8f}' for time in sorted(times))
-        key_points = ';'.join(str(times[time]) for time in sorted(times))
-        body.append(f'<g class="garden-snake-head" style="animation-name:snake-head-{index}"><g data-snake="head">')
-        body.append(f'<ellipse rx="{size*.38:.2f}" ry="{size*.28:.2f}" fill="{GREEN}"/>')
-        for eye_y in (-size * .14, size * .14):
-            body.append(f'<circle cx="{size*.16:.2f}" cy="{eye_y:.2f}" r="{size*.052:.2f}" fill="{PAPER}"/>')
-        body.append(f'<animateMotion dur="{duration:.4f}s" rotate="auto" calcMode="linear" keyTimes="{key_times}" keyPoints="{key_points}" repeatCount="indefinite"><mpath href="#{path_id}"/></animateMotion>')
-        body.append('</g></g></g>')
-    return '<defs>' + ''.join(paths) + '<style>' + ''.join(styles) + '</style></defs><g class="garden-snake" aria-hidden="true">' + ''.join(body) + '</g>'
+                x = 87 + column * gap
+                y = 140 + row * gap
+        # Match the calendar's coordinate rounding exactly, including partial weeks.
+        frames.append(f'{index / len(route) * 100:.9f}%{{transform:translate({x:.1f}px,{y:.1f}px);opacity:{visible}}}')
+    frames.append('100%' + frames[0].split('%', 1)[1])
+    body = [f"""<style>
+.garden-snake{{pointer-events:none}}
+.garden-snake-pixel{{opacity:0;animation:garden-pixel-route {duration:.3f}s steps(1,end) infinite}}
+@keyframes garden-pixel-route{{{''.join(frames)}}}
+@media(prefers-reduced-motion:reduce){{.garden-snake{{display:none}}.garden-snake-pixel{{animation:none!important}}}}
+</style><g class="garden-snake" aria-hidden="true">"""]
+    for index in reversed(range(len(SNAKE_SHADES))):
+        delay = index * SNAKE_STEP_SECONDS - duration
+        body.append(f'<g class="garden-snake-pixel" data-segment="{index}" style="animation-delay:{delay:.3f}s"><rect x="0" y="0" width="{size}" height="{size}" rx="{radius}" fill="{SNAKE_SHADES[index]}"/></g>')
+    body.append('</g>')
+    return ''.join(body)
 
 
 def garden_svg(data: dict) -> str:
@@ -373,7 +301,7 @@ def garden_svg(data: dict) -> str:
             f'fill="{LEVELS[day["contributionLevel"]]}" data-date="{day["date"]}" '
             f'data-count="{count}"><title>{escape(title)}</title></rect>'
         )
-    body.append(garden_snake(columns))
+    body.append(garden_snake(days, anchor, columns))
     body.append(text(36, 301, f"Updated {date.fromisoformat(data['date']):%d %b %Y} · UTC", 17, MUTED))
     body.append(text(751, 301, "Less", 16, MUTED))
     for index, color in enumerate(LEVELS.values()):
@@ -430,7 +358,7 @@ def garden_mobile_svg(data: dict) -> str:
                 f'fill="{LEVELS[day["contributionLevel"]]}" data-date="{day["date"]}" '
                 f'data-count="{count}"><title>{escape(title)}</title></rect>'
             )
-    body.append(garden_snake(columns, mobile=True))
+    body.append(garden_snake(days, anchor, columns, mobile=True))
     footer_y = 125 + bands * 241
     body.append(text(32, footer_y, f"Updated {date.fromisoformat(data['date']):%d %b %Y} · UTC", 18, MUTED))
     body.append(text(362, footer_y, "Less", 18, MUTED))
