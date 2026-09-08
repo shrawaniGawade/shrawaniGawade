@@ -14,8 +14,8 @@ def centered(content):
     return f'<div align="center">\n{content}\n</div>\n'
 
 
-parts=['<!-- Original SVG artwork. Rebuild with python3 scripts/build_assets.py and scripts/build_readme.py. -->\n']
-parts.append(centered(picture('hero','Shrawani Gawade — Developer exploring web, AI and automation. A little code. A lot of curiosity.')))
+parts=['<!-- Native SVG artwork. Rebuild with python3 scripts/build_assets.py and scripts/build_readme.py. -->\n']
+parts.append(centered(picture('hero','Shrawani Gawade — Curious Mind, Explainer, Automation Recorder. A little code. A lot of curiosity.')))
 sections=[
     ('dossier', 'About Shrawani', 'dossier', 'I’m Shrawani, an engineering student exploring web development, AI tools and automation. I learn by building interfaces and working demos.'),
     ('equipment', 'My toolkit', 'equipment', 'TypeScript, JavaScript, Java, React, Next.js, Tailwind CSS, HTML, CSS, Node.js and Git.'),
@@ -32,28 +32,6 @@ parts.append('<br/>\n'+picture('section-statistics','The building journal')+'\n'
 parts.append('<br/>\n'+picture('section-surveillance','A year in bloom — my contribution garden')+'\n'+centered('  <a href="https://github.com/shrawaniGawade?tab=overview">\n'+picture('contribution-garden','A chronological GitHub contribution calendar for the last year. Rose intensity indicates daily contribution activity.','generated')+'\n  </a>'))
 parts.append('<br/>\n'+picture('section-contact','Say hello')+'\n'+centered('  <a href="https://github.com/shrawaniGawade">\n'+picture('contact','Explore my work, share an idea, or follow along. Find Shrawani Gawade on GitHub.')+'\n  </a>'))
 parts.append('<br/>\n'+centered(picture('divider','',mobile=False)+'\n'+picture('complete','Still learning. Still blooming. Thanks for stopping by my little corner of GitHub. — Shrawani Gawade')))
-parts.append('''
-<details>
-<summary>Read the text version</summary>
 
-### Hi, I’m Shrawani Gawade
-
-I’m an engineering student exploring web development, AI tools and automation. I learn by building: turning ideas into interfaces, testing what works, and improving one detail at a time.
-
-**Toolkit:** TypeScript, JavaScript, Java, React, Next.js, Tailwind CSS, HTML, CSS, Node.js and Git.
-
-**Selected work**
-
-- [DeepAttend](https://github.com/shrawaniGawade/deepattend): a webcam attendance demo with face enrollment, student records and an admin dashboard. Built with Next.js, React and TypeScript.
-- [CodeGuardian](https://github.com/shrawaniGawade/CodeGuardian): a security dashboard prototype and findings API for tracking web application issues. Built with Next.js, NestJS and TypeScript. In progress.
-
-**Activity:** the graphics above show public GitHub data and their snapshot date. [View my native GitHub activity](https://github.com/shrawaniGawade?tab=overview).
-
-**Connect:** [Find me on GitHub](https://github.com/shrawaniGawade).
-
-Still learning. Still blooming.
-
-</details>
-''')
 (ROOT/'README.md').write_text('\n'.join(parts))
 print('Built README.md.')

@@ -1,9 +1,9 @@
-<!-- Original SVG artwork. Rebuild with python3 scripts/build_assets.py and scripts/build_readme.py. -->
+<!-- Native SVG artwork. Rebuild with python3 scripts/build_assets.py and scripts/build_readme.py. -->
 
 <div align="center">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/sg/hero-mobile.svg"/>
-    <img src="assets/sg/hero.svg" alt="Shrawani Gawade — Developer exploring web, AI and automation. A little code. A lot of curiosity." width="100%"/>
+    <img src="assets/sg/hero.svg" alt="Shrawani Gawade — Curious Mind, Explainer, Automation Recorder. A little code. A lot of curiosity." width="100%"/>
   </picture>
 </div>
 
@@ -104,4 +104,3 @@
     <img src="assets/sg/complete.svg" alt="Still learning. Still blooming. Thanks for stopping by my little corner of GitHub. — Shrawani Gawade" width="100%"/>
   </picture>
 </div>
-

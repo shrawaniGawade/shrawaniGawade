@@ -3,12 +3,13 @@
 from html import escape
 from pathlib import Path
 import xml.etree.ElementTree as ET
+from shield_art import adapted_shield, shield_art
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'sg'
 P = dict(paper='#FFF9EF', ink='#243F52', rose='#B65F76', muted='#596A70', sky='#DCEFF6', gold='#B98941', green='#52755F', blush='#F4E2DF', line='#DDCDBB')
 
-# Animate decorative layers only. The portrait, typography and data stay still.
+# The portrait stays still; decorative motion and the hero reveal are self-contained.
 MOTION = '''
 .breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
 .petals{transform-origin:0 0;animation:petals 8s cubic-bezier(.45,0,.25,1) infinite}
@@ -22,7 +23,6 @@ MOTION = '''
 .scan-success{transform-origin:0 0;animation:scan-success 8s ease-in-out infinite}
 .check-stroke{stroke-dasharray:100;stroke-dashoffset:0;animation:check-stroke 8s ease-in-out infinite}
 .success-halo{transform-origin:0 0;opacity:0;animation:success-halo 8s ease-out infinite}
-.shield-light{opacity:0;animation:shield-light 11s ease-in-out infinite}
 @keyframes breeze{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
 @keyframes petals{0%,12%,100%{transform:rotate(-14deg) scale(.24);opacity:.65}40%{transform:rotate(2deg) scale(1.04);opacity:1}48%,64%{transform:rotate(0deg) scale(1);opacity:1}90%{transform:rotate(-14deg) scale(.24);opacity:.65}}
 @keyframes flower-core{0%,12%,90%,100%{transform:scale(.72)}40%,64%{transform:scale(1)}}
@@ -33,8 +33,27 @@ MOTION = '''
 @keyframes scan-success{0%,48%,90%,100%{transform:scale(.65);opacity:0}56%{transform:scale(1.08);opacity:1}62%,83%{transform:scale(1);opacity:1}}
 @keyframes check-stroke{0%,55%,94%,100%{stroke-dashoffset:100}66%,92%{stroke-dashoffset:0}}
 @keyframes success-halo{0%,51%{transform:scale(.9);opacity:0}55%{transform:scale(1);opacity:.35}73%,100%{transform:scale(1.65);opacity:0}}
-@keyframes shield-light{0%,15%{stroke-dashoffset:100;opacity:0}24%{opacity:.65}70%{stroke-dashoffset:0;opacity:.65}80%,100%{stroke-dashoffset:0;opacity:0}}
-@media(prefers-reduced-motion:reduce){.breeze,.petals,.flower-core,.arch-glint,.sun-dust,.scan-light,.scan-frame,.scan-success,.check-stroke,.success-halo,.shield-light{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.breeze,.petals,.flower-core,.arch-glint,.sun-dust,.scan-light,.scan-frame,.scan-success,.check-stroke,.success-halo{animation:none!important}}
+'''
+
+HERO_MOTION = '''
+.hero-name{animation:hero-arrive 1.5s cubic-bezier(.2,.7,.2,1) both}
+.hero-role{opacity:0;animation:hero-role 15s 1.5s ease-in-out infinite}
+.hero-role.second{animation-delay:6.5s}
+.hero-role.third{animation-delay:11.5s}
+.role-reveal{transform-origin:0 0;animation:role-reveal 15s 1.5s cubic-bezier(.2,.6,.2,1) infinite}
+.role-reveal.second{animation-delay:6.5s}
+.role-reveal.third{animation-delay:11.5s}
+.hero-still{display:none}
+.role-orbit{transform-origin:18px 18px;animation:role-orbit 12s linear infinite}
+.hero-underline{stroke-dasharray:100;stroke-dashoffset:100;animation:hero-underline 15s 1.5s ease-in-out infinite}
+.hero-underline.second{animation-delay:6.5s}.hero-underline.third{animation-delay:11.5s}
+@keyframes hero-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes hero-role{0%{opacity:0;transform:translateY(7px)}4%,26%{opacity:1;transform:translateY(0)}31%,100%{opacity:0;transform:translateY(-5px)}}
+@keyframes role-reveal{0%{transform:scaleX(0)}7%,31%{transform:scaleX(1)}32%,100%{transform:scaleX(0)}}
+@keyframes role-orbit{to{transform:rotate(360deg)}}
+@keyframes hero-underline{0%,3%{stroke-dashoffset:100;opacity:0}10%,26%{stroke-dashoffset:0;opacity:1}31%,100%{stroke-dashoffset:0;opacity:0}}
+@media(prefers-reduced-motion:reduce){.hero-name,.hero-role,.role-reveal,.role-orbit,.hero-underline{animation:none!important}.hero-rotating{display:none}.hero-still{display:inline}}
 '''
 
 
@@ -80,11 +99,41 @@ def portrait_art(x, y, width, height):
     return f'<g clip-path="url(#portrait)"><svg x="{x}" y="{y}" width="{width}" height="{height}" viewBox="{viewbox}" preserveAspectRatio="xMidYMid slice" overflow="hidden" aria-hidden="true">{geometry}</svg></g>'
 
 
+def hero_roles(x, y):
+    """Reveal the three user-supplied interests, with all three in the static fallback."""
+    icons = [
+        '<circle cx="16" cy="16" r="10"/><path d="M24 24L33 33"/><g class="role-orbit"><circle cx="18" cy="1" r="2.5" fill="#B98941" stroke="none"/></g>',
+        '<path d="M4 5H33V26H16L8 33V26H4Z"/><path d="M10 12H27M10 19H22"/>',
+        '<rect x="3" y="6" width="31" height="25" rx="7"/><circle cx="18.5" cy="18.5" r="5" fill="#B65F76" stroke="none"/><path d="M9 2H28M9 35H28"/>',
+    ]
+    labels = ['Curious Mind', 'Explainer', 'Automation Recorder']
+    body = f'<g transform="translate({x} {y})"><g class="hero-rotating">'
+    for i, (label, icon) in enumerate(zip(labels, icons)):
+        phase = ['first', 'second', 'third'][i]
+        size = 34 if i < 2 else 31
+        body += f'<defs><clipPath id="role-clip-{i}"><rect class="role-reveal {phase}" x="0" y="-45" width="430" height="60"/></clipPath></defs>'
+        body += f'<g class="hero-role {phase}"><g transform="translate(0 -31)" fill="none" stroke="#B65F76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{icon}</g>'
+        body += '<g transform="translate(53 0)">'
+        body += f'<g clip-path="url(#role-clip-{i})">'+text(0,0,label,size,'ink','display')+'</g>'
+        underline = min(330, len(label)*size*.47)
+        body += f'<path class="hero-underline {phase}" d="M0 12H{underline}" pathLength="100" stroke="#B98941" stroke-width="1.2"/></g></g>'
+    body += '</g><g class="hero-still">'
+    body += text(0,-13,'Curious Mind · Explainer',24,'ink','display')
+    body += text(0,18,'Automation Recorder',24,'ink','display')
+    return body+'</g></g>'
+
+
+def hero_shield(x, y, width, height):
+    return f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="15" fill="#FFF9EF" stroke="#DDCDBB"/>'+shield_art(ROOT/'assets/security scan.svg',x+5,y+4,width-10,height-8)
+
+
 def svg(name, w, h, body, title, desc='', bg='paper', defs=''):
     OUT.mkdir(parents=True, exist_ok=True)
     style = '.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}'
-    if any(f'class="{name}' in body for name in ('breeze','petals','arch-glint','sun-dust','scan-light','shield-light')):
+    if any(f'class="{name}' in body for name in ('breeze','petals','arch-glint','sun-dust','scan-light')):
         style += MOTION
+    if name.startswith('hero'):
+        style += HERO_MOTION
     source = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-labelledby="title desc">
 <title id="title">{escape(title)}</title><desc id="desc">{escape(desc or title)}</desc>
 <defs><style>{style}</style>{defs}</defs>
@@ -102,9 +151,9 @@ def hero(mobile=False):
     if mobile:
         w,h=600,930
         clip='<clipPath id="portrait"><path d="M310 905V571A128 128 0 0 1 566 571V905Z"/></clipPath>'
-        body = text(38,60,'Hello, I’m',27,'muted') + text(34,147,'Shrawani',78,font='display') + text(35,233,'Gawade.',78,font='display')
-        body += text(38,291,'Developer, with a curious mind.',25)
-        body += text(38,347,'Exploring web, AI & automation.',24,'muted')
+        body = '<g class="hero-name">'+text(38,60,'Hello, I’m',27,'muted') + text(34,147,'Shrawani',78,font='display') + text(35,233,'Gawade.',78,font='display')+'</g>'
+        body += hero_roles(38,309)
+        body += text(38,363,'Questions, ideas & thoughtful automation.',23,'muted')
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
         body += portrait_art(276,438,315,510)
         arch='M301 905V571A137 137 0 0 1 575 571V905'
@@ -113,24 +162,26 @@ def hero(mobile=False):
         body += sprig(63,677,1,True)+flower(128,660,.75,motion=True)+flower(64,720,.5)
         body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — developer exploring web, AI and automation',defs=clip)
+        body += hero_shield(491,818,82,88)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Curious Mind, Explainer, Automation Recorder',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
     body += portrait_art(560,40,395,530)
     body += '<path d="M564 555V228A193 193 0 0 1 950 228V555" fill="none" stroke="#B98941" stroke-width="1.5"/>'
     body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
-    body += text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')
-    body += text(50,326,'Developer, with a curious mind.',25)
-    body += text(50,372,'Exploring web, AI & automation.',23,'muted')
+    body += '<g class="hero-name">'+text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')+'</g>'
+    body += hero_roles(50,329)
+    body += text(50,381,'Questions, ideas & thoughtful automation.',21,'muted')
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
-    body += flower(499,69,.60,motion=True)+flower(964,492,.6,motion=True,delay=-3)
+    body += flower(499,69,.60,motion=True)+flower(966,429,.6,motion=True,delay=-3)
     body += dust(973,188)+dust(568,382,'late')+dust(962,365,'later')
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — developer exploring web, AI and automation','An illustrated portrait of Shrawani, framed by sky blue, sari rose and antique gold.',defs=clip)
+    body += hero_shield(863,458,88,98)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Curious Mind, Explainer, Automation Recorder','Shrawani’s native vector portrait with blooming flowers, a scanning shield, and a gentle reveal of Curious Mind, Explainer and Automation Recorder.',defs=clip)
 
 
 def section(name, heading, note):
@@ -193,10 +244,8 @@ def project_illustration(which,x,y,scale=1):
         body+='<path class="scan-light" d="M789 84H903" stroke="#52755F" stroke-width="2" stroke-linecap="round"/>'
         body+='<g transform="translate(902 153)"><circle class="success-halo" r="17" fill="none" stroke="#52755F" stroke-width="1.5"/><g class="scan-success"><circle r="17" fill="#52755F"/><path class="check-stroke" d="M-8 0L-2 6L9 -7" pathLength="100" fill="none" stroke="#FFF9EF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></g>'
     else:
-        shield='M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z'
         body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#F4E2DF"/>'
-        body+=f'<path d="{shield}" fill="#FFF9EF" stroke="#B98941" stroke-width="2"/><path class="shield-light" d="{shield}" pathLength="100" stroke-dasharray="26 74" fill="none" stroke="#B65F76" stroke-width="3" stroke-linecap="round"/>'
-        body+='<g stroke="#243F52" stroke-width="3" stroke-linecap="round" fill="none"><path d="M838 101L825 115L838 129M855 101L868 115L855 129"/></g>'
+        body+=shield_art(ROOT/'assets/security scan.svg',755,38,183,156)
     return body+'</g>'
 
 
@@ -236,6 +285,8 @@ def finishing():
 
 
 def main():
+    OUT.mkdir(parents=True, exist_ok=True)
+    (OUT/'security-shield.svg').write_text(adapted_shield(ROOT/'assets/security scan.svg'))
     for m in [False,True]:
         hero(m); about(m); equipment(m); project(1,m); project(2,m)
     for args in [('dossier','The person behind the pixels','A little about me'),('equipment','My toolkit','Things I build with'),('contracts','Selected work','Ideas taking shape'),('statistics','The building journal','Progress, one commit at a time'),('surveillance','A year in bloom','My contribution garden'),('contact','Say hello','Let’s connect')]:section(*args)
