@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'sg'
 P = dict(paper='#FFF9EF', ink='#243F52', rose='#B65F76', muted='#596A70', sky='#DCEFF6', gold='#B98941', green='#52755F', blush='#F4E2DF', line='#DDCDBB')
 
-# The portrait stays still; decorative motion and the hero reveal are self-contained.
+# Motion for non-hero artwork. The hero uses only its typing cursor and text.
 MOTION = '''
 .breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
 .petals{transform-origin:0 0;animation:petals 8s cubic-bezier(.45,0,.25,1) infinite}
@@ -36,25 +36,17 @@ MOTION = '''
 @media(prefers-reduced-motion:reduce){.breeze,.petals,.flower-core,.arch-glint,.sun-dust,.scan-light,.scan-frame,.scan-success,.check-stroke,.success-halo{animation:none!important}}
 '''
 
-HERO_MOTION = '''
-.hero-name{animation:hero-arrive 1.5s cubic-bezier(.2,.7,.2,1) both}
-.hero-role{opacity:0;animation:hero-role 15s 1.5s ease-in-out infinite}
-.hero-role.second{animation-delay:6.5s}
-.hero-role.third{animation-delay:11.5s}
-.role-reveal{transform-origin:0 0;animation:role-reveal 15s 1.5s cubic-bezier(.2,.6,.2,1) infinite}
-.role-reveal.second{animation-delay:6.5s}
-.role-reveal.third{animation-delay:11.5s}
-.hero-still{display:none}
-.role-orbit{transform-origin:18px 18px;animation:role-orbit 12s linear infinite}
-.hero-underline{stroke-dasharray:100;stroke-dashoffset:100;animation:hero-underline 15s 1.5s ease-in-out infinite}
-.hero-underline.second{animation-delay:6.5s}.hero-underline.third{animation-delay:11.5s}
-@keyframes hero-arrive{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-@keyframes hero-role{0%{opacity:0;transform:translateY(7px)}4%,26%{opacity:1;transform:translateY(0)}31%,100%{opacity:0;transform:translateY(-5px)}}
-@keyframes role-reveal{0%{transform:scaleX(0)}7%,31%{transform:scaleX(1)}32%,100%{transform:scaleX(0)}}
-@keyframes role-orbit{to{transform:rotate(360deg)}}
-@keyframes hero-underline{0%,3%{stroke-dashoffset:100;opacity:0}10%,26%{stroke-dashoffset:0;opacity:1}31%,100%{stroke-dashoffset:0;opacity:0}}
-@media(prefers-reduced-motion:reduce){.hero-name,.hero-role,.role-reveal,.role-orbit,.hero-underline{animation:none!important}.hero-rotating{display:none}.hero-still{display:inline}}
-'''
+HERO_MOTION = """
+.typing-clip{transform-origin:0 0}
+.typing-word{font-kerning:none;font-variant-ligatures:none}
+.hero-type-still{display:none}
+.typing-caret{animation:typing-blink .96s steps(1,end) infinite}
+@keyframes typing-blink{0%,49%{opacity:1}50%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.hero-type-live{display:none}.hero-type-still{display:inline}.typing-clip,.typing-position,.typing-caret{animation:none!important}}
+"""
+
+HERO_PHRASES = ('curious mind.', 'creative spark.', 'love for automation.')
+
 
 
 def text(x, y, value, size=24, color='ink', font='body', extra=''):
@@ -99,32 +91,45 @@ def portrait_art(x, y, width, height):
     return f'<g clip-path="url(#portrait)"><svg x="{x}" y="{y}" width="{width}" height="{height}" viewBox="{viewbox}" preserveAspectRatio="xMidYMid slice" overflow="hidden" aria-hidden="true">{geometry}</svg></g>'
 
 
-def hero_roles(x, y):
-    """Reveal the three user-supplied interests, with all three in the static fallback."""
-    icons = [
-        '<circle cx="16" cy="16" r="10"/><path d="M24 24L33 33"/><g class="role-orbit"><circle cx="18" cy="1" r="2.5" fill="#B98941" stroke="none"/></g>',
-        '<path d="M4 5H33V26H16L8 33V26H4Z"/><path d="M10 12H27M10 19H22"/>',
-        '<rect x="3" y="6" width="31" height="25" rx="7"/><circle cx="18.5" cy="18.5" r="5" fill="#B65F76" stroke="none"/><path d="M9 2H28M9 35H28"/>',
-    ]
-    labels = ['Curious Mind', 'Explainer', 'Automation Recorder']
-    body = f'<g transform="translate({x} {y})"><g class="hero-rotating">'
-    for i, (label, icon) in enumerate(zip(labels, icons)):
-        phase = ['first', 'second', 'third'][i]
-        size = 34 if i < 2 else 31
-        body += f'<defs><clipPath id="role-clip-{i}"><rect class="role-reveal {phase}" x="0" y="-45" width="430" height="60"/></clipPath></defs>'
-        body += f'<g class="hero-role {phase}"><g transform="translate(0 -31)" fill="none" stroke="#B65F76" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">{icon}</g>'
-        body += '<g transform="translate(53 0)">'
-        body += f'<g clip-path="url(#role-clip-{i})">'+text(0,0,label,size,'ink','display')+'</g>'
-        underline = min(330, len(label)*size*.47)
-        body += f'<path class="hero-underline {phase}" d="M0 12H{underline}" pathLength="100" stroke="#B98941" stroke-width="1.2"/></g></g>'
-    body += '</g><g class="hero-still">'
-    body += text(0,-13,'Curious Mind · Explainer',24,'ink','display')
-    body += text(0,18,'Automation Recorder',24,'ink','display')
-    return body+'</g></g>'
+def typing_timeline():
+    """One shared character timeline for both text clipping and its caret."""
+    phrase, time = 0, 2.6
+    events = [(0, 0, len(HERO_PHRASES[0])), (time, 0, len(HERO_PHRASES[0]))]
+    for following in (1, 2, 0):
+        for count in range(len(HERO_PHRASES[phrase]) - 1, -1, -1):
+            time += .055
+            events.append((round(time, 3), phrase, count))
+        time += .35
+        events.append((round(time, 3), following, 0))
+        for count in range(1, len(HERO_PHRASES[following]) + 1):
+            time += .085
+            events.append((round(time, 3), following, count))
+        phrase = following
+        time += 2 if phrase == 0 else 3
+        events.append((round(time, 3), phrase, len(HERO_PHRASES[phrase])))
+    return events, round(time, 3)
 
 
-def hero_shield(x, y, width, height):
-    return f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="15" fill="#FFF9EF" stroke="#DDCDBB"/>'+shield_art(ROOT/'assets/security scan.svg',x+5,y+4,width-10,height-8)
+def hero_typewriter(x, y, size=32):
+    """Type only the sentence ending; the surrounding hero stays still."""
+    events, duration = typing_timeline()
+    advance = size * .6
+    definitions, words, styles = [], [], []
+    for index, phrase in enumerate(HERO_PHRASES):
+        width = len(phrase) * advance
+        name = f'typing-word-{index}'
+        frames = ''.join(f'{time / duration * 100:.6f}%{{transform:scaleX({count / len(phrase) if active == index else 0:.8f})}}'
+                         for time, active, count in events)
+        styles.append(f'.{name}{{animation:{name} {duration:.3f}s steps(1,end) infinite}}@keyframes {name}{{{frames}}}')
+        initial = 1 if index == 0 else 0
+        definitions.append(f'<clipPath id="typing-clip-{index}"><rect class="typing-clip {name}" x="0" y="{-size}" width="{width:.2f}" height="{size*1.45:.2f}" transform="scale({initial} 1)"/></clipPath>')
+        words.append(f'<g clip-path="url(#typing-clip-{index})">'+text(0,0,phrase,size,'ink','mono typing-word',extra=f'textLength="{width:.2f}" lengthAdjust="spacingAndGlyphs"')+'</g>')
+    cursor_frames = ''.join(f'{time / duration * 100:.6f}%{{transform:translateX({count * advance + 4:.2f}px)}}'
+                            for time, _, count in events)
+    styles.append(f'.typing-position{{animation:typing-position {duration:.3f}s steps(1,end) infinite}}@keyframes typing-position{{{cursor_frames}}}')
+    cursor = f'<g class="typing-position" transform="translate({len(HERO_PHRASES[0])*advance+4:.2f} 0)"><rect class="typing-caret" x="0" y="{-size*.83:.2f}" width="2" height="{size*1.02:.2f}" rx=".5" fill="#B65F76"/></g>'
+    still = text(0,0,HERO_PHRASES[0],size,'ink','mono typing-word',extra=f'textLength="{len(HERO_PHRASES[0])*advance:.2f}" lengthAdjust="spacingAndGlyphs"')
+    return f'<g transform="translate({x} {y})"><defs><style>{"".join(styles)}</style>{"".join(definitions)}</defs><g class="hero-type-live">{"".join(words)}{cursor}</g><g class="hero-type-still">{still}</g></g>'
 
 
 def svg(name, w, h, body, title, desc='', bg='paper', defs=''):
@@ -151,37 +156,30 @@ def hero(mobile=False):
     if mobile:
         w,h=600,930
         clip='<clipPath id="portrait"><path d="M310 905V571A128 128 0 0 1 566 571V905Z"/></clipPath>'
-        body = '<g class="hero-name">'+text(38,60,'Hello, I’m',27,'muted') + text(34,147,'Shrawani',78,font='display') + text(35,233,'Gawade.',78,font='display')+'</g>'
-        body += hero_roles(38,309)
-        body += text(38,363,'Developer, with a curious mind.',23,'muted')
+        body = text(38,60,'Hello, I’m',27,'muted') + text(34,147,'Shrawani',78,font='display') + text(35,233,'Gawade.',78,font='display')
+        body += text(38,300,'Developer, with a',25,'muted')
+        body += hero_typewriter(38,350)
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
         body += portrait_art(276,438,315,510)
         arch='M301 905V571A137 137 0 0 1 575 571V905'
-        body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'+arch_glint(arch)
+        body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
-        body += sprig(63,677,1,True)+flower(128,660,.75,motion=True)+flower(64,720,.5)
-        body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
-        body += hero_shield(491,818,82,88)
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','Curious Mind, Explainer and Automation Recorder, revealed in a gentle loop beside Shrawani’s illustrated portrait.',defs=clip)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, creative spark and love for automation, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
     body += portrait_art(560,40,395,530)
     body += '<path d="M564 555V228A193 193 0 0 1 950 228V555" fill="none" stroke="#B98941" stroke-width="1.5"/>'
-    body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
-    body += '<g class="hero-name">'+text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')+'</g>'
-    body += hero_roles(50,329)
-    body += text(50,381,'Developer, with a curious mind.',21,'muted')
+    body += text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')
+    body += text(50,324,'Developer, with a',25,'muted')
+    body += hero_typewriter(50,371)
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
-    body += flower(499,69,.60,motion=True)+flower(966,429,.6,motion=True,delay=-3)
-    body += dust(973,188)+dust(568,382,'late')+dust(962,365,'later')
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
-    body += hero_shield(863,458,88,98)
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','Shrawani’s native vector portrait with blooming flowers, a scanning shield, and a gentle reveal of Curious Mind, Explainer and Automation Recorder.',defs=clip)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, creative spark and love for automation, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
 
 
 def section(name, heading, note):
