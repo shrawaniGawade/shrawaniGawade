@@ -105,25 +105,3 @@
   </picture>
 </div>
 
-
-<details>
-<summary>Read the text version</summary>
-
-### Hi, I’m Shrawani Gawade
-
-I’m an engineering student exploring web development, AI tools and automation. I learn by building: turning ideas into interfaces, testing what works, and improving one detail at a time.
-
-**Toolkit:** TypeScript, JavaScript, Java, React, Next.js, Tailwind CSS, HTML, CSS, Node.js and Git.
-
-**Selected work**
-
-- [DeepAttend](https://github.com/shrawaniGawade/deepattend): a webcam attendance demo with face enrollment, student records and an admin dashboard. Built with Next.js, React and TypeScript.
-- [CodeGuardian](https://github.com/shrawaniGawade/CodeGuardian): a security dashboard prototype and findings API for tracking web application issues. Built with Next.js, NestJS and TypeScript. In progress.
-
-**Activity:** the graphics above show public GitHub data and their snapshot date. [View my native GitHub activity](https://github.com/shrawaniGawade?tab=overview).
-
-**Connect:** [Find me on GitHub](https://github.com/shrawaniGawade).
-
-Still learning. Still blooming.
-
-</details>
