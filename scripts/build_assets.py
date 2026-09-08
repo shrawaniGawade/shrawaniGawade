@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'assets' / 'sg'
 P = dict(paper='#FFF9EF', ink='#243F52', rose='#B65F76', muted='#596A70', sky='#DCEFF6', gold='#B98941', green='#52755F', blush='#F4E2DF', line='#DDCDBB')
 
-# Motion for non-hero artwork. The hero uses only its typing cursor and text.
+# Shared decorative motion; the hero keeps its current text-editor typing effect.
 MOTION = '''
 .breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
 .petals{transform-origin:0 0;animation:petals 8s cubic-bezier(.45,0,.25,1) infinite}
@@ -152,6 +152,10 @@ def pill(x, y, value, w, color='ink', bg='paper', size=22):
     return f'<rect x="{x}" y="{y}" width="{w}" height="44" rx="22" fill="{P[bg]}"/>' + text(x+w/2,y+29,value,size,color,extra='text-anchor="middle"')
 
 
+def hero_shield(x, y, width, height):
+    return f'<rect x="{x}" y="{y}" width="{width}" height="{height}" rx="15" fill="#FFF9EF" stroke="#DDCDBB"/>'+shield_art(ROOT/'assets/security scan.svg',x+5,y+4,width-10,height-8)
+
+
 def hero(mobile=False):
     if mobile:
         w,h=600,930
@@ -162,26 +166,31 @@ def hero(mobile=False):
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
         body += portrait_art(276,438,315,510)
         arch='M301 905V571A137 137 0 0 1 575 571V905'
-        body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'
+        body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'+arch_glint(arch)
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
-        body += sprig(63,677,1)+flower(128,660,.75)+flower(64,720,.5)
+        body += sprig(63,677,1,True)+flower(128,660,.75,motion=True)+flower(64,720,.5)
+        body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+        body += hero_shield(491,818,82,88)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint, floating sparkles and an animated scanning shield. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
     body += portrait_art(560,40,395,530)
     body += '<path d="M564 555V228A193 193 0 0 1 950 228V555" fill="none" stroke="#B98941" stroke-width="1.5"/>'
+    body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
     body += text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')
     body += text(50,324,'Developer, with a',25,'muted')
     body += hero_typewriter(50,371)
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
-    body += flower(499,69,.60)+flower(966,429,.6)
+    body += flower(499,69,.60,motion=True)+flower(966,429,.6,motion=True,delay=-3)
+    body += dust(973,188)+dust(568,382,'late')+dust(962,365,'later')
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
+    body += hero_shield(863,458,88,98)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','An illustrated portrait with blooming flowers, a travelling arch glint, floating sparkles and an animated scanning shield. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
 
 
 def section(name, heading, note):
