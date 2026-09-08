@@ -153,7 +153,7 @@ def hero(mobile=False):
         clip='<clipPath id="portrait"><path d="M310 905V571A128 128 0 0 1 566 571V905Z"/></clipPath>'
         body = '<g class="hero-name">'+text(38,60,'Hello, I’m',27,'muted') + text(34,147,'Shrawani',78,font='display') + text(35,233,'Gawade.',78,font='display')+'</g>'
         body += hero_roles(38,309)
-        body += text(38,363,'Questions, ideas & thoughtful automation.',23,'muted')
+        body += text(38,363,'Developer, with a curious mind.',23,'muted')
         body += '<path d="M38 390H560" stroke="#DDCDBB"/>'
         body += portrait_art(276,438,315,510)
         arch='M301 905V571A137 137 0 0 1 575 571V905'
@@ -163,7 +163,7 @@ def hero(mobile=False):
         body += dust(266,657,'late')
         body += text(38,870,'@shrawaniGawade',21,'muted')
         body += hero_shield(491,818,82,88)
-        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Curious Mind, Explainer, Automation Recorder',defs=clip)
+        svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','Curious Mind, Explainer and Automation Recorder, revealed in a gentle loop beside Shrawani’s illustrated portrait.',defs=clip)
         return
     clip='<clipPath id="portrait"><path d="M575 555V228A182 182 0 0 1 939 228V555Z"/></clipPath>'
     body = '<path d="M554 0H976Q1000 0 1000 24V615H554Z" fill="#DCEFF6"/>'
@@ -172,7 +172,7 @@ def hero(mobile=False):
     body += arch_glint('M564 555V228A193 193 0 0 1 950 228V555')
     body += '<g class="hero-name">'+text(48,66,'Hello, I’m',23,'muted')+text(44,165,'Shrawani',84,font='display')+text(46,261,'Gawade.',84,font='display')+'</g>'
     body += hero_roles(50,329)
-    body += text(50,381,'Questions, ideas & thoughtful automation.',21,'muted')
+    body += text(50,381,'Developer, with a curious mind.',21,'muted')
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
     body += flower(499,69,.60,motion=True)+flower(966,429,.6,motion=True,delay=-3)
@@ -181,7 +181,7 @@ def hero(mobile=False):
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
     body += hero_shield(863,458,88,98)
-    svg('hero.svg',1000,640,body,'Shrawani Gawade — Curious Mind, Explainer, Automation Recorder','Shrawani’s native vector portrait with blooming flowers, a scanning shield, and a gentle reveal of Curious Mind, Explainer and Automation Recorder.',defs=clip)
+    svg('hero.svg',1000,640,body,'Shrawani Gawade — Developer, with a curious mind.','Shrawani’s native vector portrait with blooming flowers, a scanning shield, and a gentle reveal of Curious Mind, Explainer and Automation Recorder.',defs=clip)
 
 
 def section(name, heading, note):

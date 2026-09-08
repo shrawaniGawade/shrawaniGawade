@@ -15,7 +15,7 @@ def centered(content):
 
 
 parts=['<!-- Native SVG artwork. Rebuild with python3 scripts/build_assets.py and scripts/build_readme.py. -->\n']
-parts.append(centered(picture('hero','Shrawani Gawade — Curious Mind, Explainer, Automation Recorder. A little code. A lot of curiosity.')))
+parts.append(centered(picture('hero','Shrawani Gawade — Developer, with a curious mind. Curious Mind, Explainer, Automation Recorder. A little code. A lot of curiosity.')))
 sections=[
     ('dossier', 'About Shrawani', 'dossier', 'I’m Shrawani, an engineering student exploring web development, AI tools and automation. I learn by building interfaces and working demos.'),
     ('equipment', 'My toolkit', 'equipment', 'TypeScript, JavaScript, Java, React, Next.js, Tailwind CSS, HTML, CSS, Node.js and Git.'),
