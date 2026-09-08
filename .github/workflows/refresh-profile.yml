@@ -1,0 +1,46 @@
+name: Refresh profile garden
+
+on:
+  schedule:
+    - cron: '23 2 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - scripts/update_activity.py
+      - .github/workflows/refresh-profile.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-garden
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    if: github.repository == 'shrawaniGawade/shrawaniGawade'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out profile
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+      - name: Verify generator
+        run: python3 -m unittest discover -s tests -p 'test_activity.py'
+      - name: Refresh public GitHub artwork
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/update_activity.py
+      - name: Commit refreshed artwork
+        run: |
+          git add assets/generated/stats.svg assets/generated/stats-mobile.svg assets/generated/contribution-garden.svg assets/generated/contribution-garden-mobile.svg
+          if git diff --cached --quiet; then
+            echo "The garden is already up to date."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "chore: refresh profile activity"
+          git push origin HEAD:main

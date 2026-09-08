@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="82" viewBox="0 0 600 82" role="img" aria-labelledby="title desc">
+<title id="title">My toolkit</title><desc id="desc">My toolkit</desc>
+<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}</style></defs>
+<rect width="600" height="82" rx="24" fill="#FFF9EF"/>
+<g transform="translate(27 41) scale(0.48)" fill="none" stroke="#B65F76" stroke-width="1.5"><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(0)"/><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(60)"/><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(120)"/><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(180)"/><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(240)"/><ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate(300)"/><circle r="5" fill="#B98941" stroke="none"/></g><text x="57" y="53" class="display" font-size="34" fill="#243F52" >My toolkit</text>
+</svg>

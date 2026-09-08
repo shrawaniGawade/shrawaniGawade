@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="600" height="416" viewBox="0 0 600 416" role="img" aria-labelledby="title desc">
+<title id="title">CodeGuardian — Security dashboard prototype</title><desc id="desc">CodeGuardian — Security dashboard prototype</desc>
+<defs><style>.body{font-family:Trebuchet MS,Arial,sans-serif}.display{font-family:Georgia,Times New Roman,serif}.mono{font-family:Courier New,monospace}</style></defs>
+<rect width="600" height="416" rx="24" fill="#FFF9EF"/>
+<text x="32" y="54" class="body" font-size="23" fill="#B65F76" >Security dashboard prototype</text><text x="30" y="112" class="display" font-size="48" fill="#243F52" >CodeGuardian</text><text x="32" y="172" class="body" font-size="24" fill="#596A70" >A dashboard and findings API for</text><text x="32" y="207" class="body" font-size="24" fill="#596A70" >tracking web application issues.</text><text x="32" y="242" class="body" font-size="24" fill="#596A70" >A work in progress.</text><text x="32" y="302" class="body" font-size="22" fill="#243F52" >Next.js / NestJS / TypeScript</text><rect x="32" y="337" width="234" height="44" rx="22" fill="#243F52"/><text x="149.0" y="366" class="body" font-size="22" fill="#FFF9EF" text-anchor="middle">Explore repository</text>
+</svg>
