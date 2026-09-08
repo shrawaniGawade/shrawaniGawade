@@ -178,6 +178,101 @@ def stats_svg(data: dict, mobile=False) -> str:
     return svg(width, height, "Shrawani Gawade — GitHub progress", description, body)
 
 
+def snake_route(columns: int) -> list[tuple[int, int] | None]:
+    """An orthogonal arcade route; V/S turns are hidden in its movement.
+
+    Ten empty ticks let the tail leave before the next 18-week band starts.
+    The same logical route works on the wide calendar and its mobile bands.
+    """
+    route = []
+    for offset in range(0, columns, 18):
+        width = min(18, columns - offset)
+        local = []
+
+        def go(x, y):
+            if not local:
+                local.append((x, y))
+                return
+            last_x, last_y = local[-1]
+            if x != last_x and y != last_y:
+                raise ValueError("Snake turns must follow calendar cells")
+            while (last_x, last_y) != (x, y):
+                last_x += (x > last_x) - (x < last_x)
+                last_y += (y > last_y) - (y < last_y)
+                local.append((last_x, last_y))
+
+        if width >= 17:
+            # A pixel V, a connecting lane, then an S traversed from its foot.
+            for point in [(0, 3), (0, 1), (1, 1), (1, 2), (2, 2),
+                          (2, 4), (3, 4), (3, 5), (4, 5), (4, 4),
+                          (5, 4), (5, 2), (6, 2), (6, 1), (8, 1),
+                          (8, 5), (14, 5), (14, 3), (10, 3),
+                          (10, 1), (width - 2, 1), (width - 2, 6),
+                          (0, 6), (0, 0), (width - 1, 0), (width - 1, 6)]:
+                go(*point)
+        else:
+            # Short date ranges and a narrow final band still move safely.
+            go(0, 0)
+            for row in range(7):
+                go(width - 1 if row % 2 == 0 else 0, row)
+                if row < 6:
+                    go(local[-1][0], row + 1)
+        route.extend((x + offset, y) for x, y in local)
+        route.extend([None] * 10)
+    return route
+
+
+def garden_snake(days: list[dict], anchor: date, columns: int, mobile=False) -> str:
+    """Overlay native, stepped SVG motion without changing any date cell."""
+    route = snake_route(columns)
+    occupied = {((date.fromisoformat(day['date']) - anchor).days // 7,
+                 day['weekday']) for day in days}
+    gap, size = (26, 21) if mobile else (min(16.4, 864 / columns), 12.6)
+    tick, segments = .14, 8
+    duration = len(route) * tick
+    frames = []
+    previous = None
+    for index, point in enumerate(route):
+        angle = 0
+        x, y, visible = 0, 0, int(point in occupied)
+        if point is not None:
+            column, row = point
+            if mobile:
+                x = 88 + (column % 18) * gap + size / 2
+                y = 145 + (column // 18) * 241 + row * gap + size / 2
+            else:
+                x = 87 + column * gap + size / 2
+                y = 140 + row * gap + size / 2
+            if previous is not None:
+                dx, dy = column - previous[0], row - previous[1]
+            else:
+                next_point = next((p for p in route[index + 1:] if p is not None), point)
+                dx, dy = next_point[0] - column, next_point[1] - row
+            angle = 90 if dy > 0 else -90 if dy < 0 else 180 if dx < 0 else 0
+        frames.append(f'{index / len(route) * 100:.5f}%{{transform:translate({x:.2f}px,{y:.2f}px) rotate({angle}deg);opacity:{visible}}}')
+        previous = point
+    frames.append('100%' + frames[0].split('%', 1)[1])
+    body = [f'''<style>
+.garden-snake{{pointer-events:none}}
+.garden-snake-segment{{opacity:0;animation:garden-snake-route {duration:.2f}s steps(1,end) infinite}}
+@keyframes garden-snake-route{{{''.join(frames)}}}
+@media(prefers-reduced-motion:reduce){{.garden-snake{{display:none}}.garden-snake-segment{{animation:none!important}}}}
+</style><g class="garden-snake" aria-hidden="true">''']
+    for index in reversed(range(segments)):
+        head = index == 0
+        edge = size * (.86 if head else .77)
+        opacity = 1 if head else .76 - index * .065
+        delay = index * tick - duration
+        body.append(f'<g class="garden-snake-segment" data-snake="{"head" if head else "body"}" style="animation-delay:{delay:.2f}s">')
+        body.append(f'<rect x="{-edge/2:.2f}" y="{-edge/2:.2f}" width="{edge:.2f}" height="{edge:.2f}" rx="{size*.15:.2f}" fill="{GREEN}" fill-opacity="{opacity:.3f}" stroke="{PAPER}" stroke-opacity=".65" stroke-width=".7"/>')
+        if head:
+            for eye_y in (-size * .18, size * .18):
+                body.append(f'<circle cx="{size*.21:.2f}" cy="{eye_y:.2f}" r="{size*.071:.2f}" fill="{PAPER}"/>')
+        body.append('</g>')
+    body.append('</g>')
+    return ''.join(body)
+
+
 def garden_svg(data: dict) -> str:
     days = calendar_days(data["calendar"])
     start = date.fromisoformat(days[0]["date"])
@@ -214,6 +309,7 @@ def garden_svg(data: dict) -> str:
             f'fill="{LEVELS[day["contributionLevel"]]}" data-date="{day["date"]}" '
             f'data-count="{count}"><title>{escape(title)}</title></rect>'
         )
+    body.append(garden_snake(days, anchor, columns))
     body.append(text(36, 301, "Each square is a day. Every little step counts.", 22, MUTED))
     body.append(text(740, 301, "Less", 20, MUTED))
     for index, color in enumerate(LEVELS.values()):
@@ -225,6 +321,7 @@ def garden_svg(data: dict) -> str:
         f"{total} total contributions. Weeks run from left to right, Sunday through Saturday top to bottom. "
         "Cream squares indicate no contributions; progressively deeper rose shades indicate more contributions, "
         "using GitHub's relative contribution levels. Every square includes its date and exact count. "
+        "A small decorative snake moves across the grid; reduced motion shows the still calendar. "
         f"Refreshed {data['date']} UTC."
     )
     return svg(1000, 366, "Shrawani Gawade — contribution garden", description, body)
@@ -269,6 +366,7 @@ def garden_mobile_svg(data: dict) -> str:
                 f'fill="{LEVELS[day["contributionLevel"]]}" data-date="{day["date"]}" '
                 f'data-count="{count}"><title>{escape(title)}</title></rect>'
             )
+    body.append(garden_snake(days, anchor, columns, mobile=True))
     footer_y = 125 + bands * 241
     body.append(text(32, footer_y, "One square, one day.", 24, MUTED))
     body.append(text(32, footer_y + 36, f"Updated {data['date']} UTC", 24, MUTED))
@@ -282,6 +380,7 @@ def garden_mobile_svg(data: dict) -> str:
         "Each band contains at most 18 weeks. Rows run Sunday through Saturday. "
         "Cream indicates no contributions; deeper rose indicates more contributions using GitHub's relative levels. "
         "Every square includes its exact date and count. "
+        "A small decorative snake visits each band; reduced motion shows the still calendar. "
         f"Refreshed {data['date']} UTC."
     )
     return svg(600, height, "Shrawani Gawade — contribution garden", description, body)

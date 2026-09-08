@@ -75,7 +75,7 @@
   <a href="https://github.com/shrawaniGawade?tab=overview">
   <picture>
     <source media="(max-width: 600px)" srcset="assets/generated/contribution-garden-mobile.svg"/>
-    <img src="assets/generated/contribution-garden.svg" alt="A chronological GitHub contribution calendar for the last year. Rose intensity indicates daily contribution activity." width="100%"/>
+    <img src="assets/generated/contribution-garden.svg" alt="A chronological GitHub contribution calendar for the last year. Rose intensity indicates daily contribution activity. A small decorative snake moves across the grid; reduced motion shows the still calendar." width="100%"/>
   </picture>
   </a>
 </div>

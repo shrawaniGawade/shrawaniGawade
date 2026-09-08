@@ -29,7 +29,7 @@ for i,url,alt in [
 ]:
     parts.append(centered(f'  <a href="{url}">\n'+picture(f'contract-{i}',alt)+'\n  </a>'))
 parts.append('<br/>\n'+picture('section-statistics','The building journal')+'\n'+centered(picture('stats','GitHub public activity: contributions in the last year, public repository count, stars on original public repositories, and primary languages ranked by number of original public repositories. Updated daily; snapshot date is displayed in the graphic.','generated')))
-parts.append('<br/>\n'+picture('section-surveillance','A year in bloom — my contribution garden')+'\n'+centered('  <a href="https://github.com/shrawaniGawade?tab=overview">\n'+picture('contribution-garden','A chronological GitHub contribution calendar for the last year. Rose intensity indicates daily contribution activity.','generated')+'\n  </a>'))
+parts.append('<br/>\n'+picture('section-surveillance','A year in bloom — my contribution garden')+'\n'+centered('  <a href="https://github.com/shrawaniGawade?tab=overview">\n'+picture('contribution-garden','A chronological GitHub contribution calendar for the last year. Rose intensity indicates daily contribution activity. A small decorative snake moves across the grid; reduced motion shows the still calendar.','generated')+'\n  </a>'))
 parts.append('<br/>\n'+picture('section-contact','Say hello')+'\n'+centered('  <a href="https://github.com/shrawaniGawade">\n'+picture('contact','Explore my work, share an idea, or follow along. Find Shrawani Gawade on GitHub.')+'\n  </a>'))
 parts.append('<br/>\n'+centered(picture('divider','',mobile=False)+'\n'+picture('complete','Still learning. Still blooming. Thanks for stopping by my little corner of GitHub. — Shrawani Gawade')))
 

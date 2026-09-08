@@ -46,9 +46,33 @@ class ActivityTests(unittest.TestCase):
         self.assertEqual([(node.attrib["data-date"], node.attrib["data-count"]) for node in desktop],
                          [(node.attrib["data-date"], node.attrib["data-count"]) for node in mobile])
         self.assertEqual(len(mobile), 365)
+        expected = [(day['date'], str(day['contributionCount']),
+                     activity.LEVELS[day['contributionLevel']]) for day in days]
+        for rendered in (desktop, mobile):
+            self.assertEqual([(cell.get('data-date'), cell.get('data-count'),
+                               cell.get('fill')) for cell in rendered], expected)
         self.assertTrue(all(88 <= float(node.attrib["x"]) <= 530 for node in mobile))
         band_rows = {int((float(node.attrib["y"]) - 145) // 241) for node in mobile}
         self.assertEqual(band_rows, {0, 1, 2})
+
+    def test_snake_stays_on_adjacent_cells_without_hitting_its_tail(self):
+        # Include tiny ranges, full bands, and calendars with a partial last band.
+        for columns in (1, 2, 16, 17, 18, 19, 35, 36, 52, 53, 54):
+            with self.subTest(columns=columns):
+                previous, tail = None, []
+                route = activity.snake_route(columns)
+                self.assertTrue(route)
+                self.assertEqual(route[-10:], [None] * 10)
+                for point in route:
+                    if point is None:
+                        previous, tail = None, []
+                        continue
+                    column, row = point
+                    self.assertTrue(0 <= column < columns and 0 <= row < 7)
+                    if previous is not None:
+                        self.assertEqual(abs(column - previous[0]) + abs(row - previous[1]), 1)
+                    self.assertNotIn(point, tail)
+                    previous, tail = point, (tail + [point])[-7:]
 
     def test_partial_week_uses_real_weekday_and_advances_on_sunday(self):
         root = ET.fromstring(activity.garden_svg(fixture()))

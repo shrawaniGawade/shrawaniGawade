@@ -23,6 +23,8 @@ DeepAttend uses one coordinated eight-second sequence: the scan line travels ove
 
 The hero name fades into place once. The user-supplied interests — Curious Mind, Explainer and Automation Recorder — then reveal in sequence with a matching icon and a drawn gold underline. Each phrase has five seconds within a fifteen-second loop. Portrait geometry and contribution data remain stationary. All motion follows `prefers-reduced-motion`: with that preference enabled, all three interests appear together, flowers remain open, the shield and lock stay visible, and DeepAttend shows its completed checkmark. The README’s links provide interaction through the clickable project and contact cards. There are no JavaScript or hover-dependent controls inside the SVG images.
 
+The contribution garden has a small, muted green snake inspired by the classic grid game. Its eight segments advance one cell every 140 milliseconds, with a fading tail. V and S shapes are hidden in the route; neither letter nor the route is drawn as a separate graphic. The snake visits each 18-week band in sequence, with enough time for its tail to leave before the next band begins. Contribution cells keep their real dates, counts and colors throughout. The daily refresh generates this animation alongside the calendar, using only native SVG shapes and CSS. Reduced motion hides the decorative snake and leaves the complete calendar visible.
+
 ## Editing
 
 - `scripts/build_assets.py`: artwork, intro, toolkit and project-card text.
