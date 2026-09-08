@@ -17,7 +17,9 @@ Georgia gives headings a personal, storybook feel. Trebuchet MS, with Arial as f
 
 ## A little movement
 
-Self-contained CSS animations add a slow sunlight glint along the portrait arch, a few drifting gold specks, gently turning flower petals and a swaying botanical sprig. The DeepAttend illustration has a soft scan line; CodeGuardian has a slowly traced shield. The same small illustrations appear on the mobile project cards.
+Self-contained CSS animations add a slow sunlight glint along the portrait arch, a few drifting gold specks and a swaying botanical sprig. Animated flowers grow from a small bud, hold a full bloom, and shrink again in an eight-second loop. The two desktop banner flowers bloom at different points in that cycle.
+
+DeepAttend uses one coordinated eight-second sequence: the scan line travels over the face and fades out, then the corners turn green, a success badge appears, and its checkmark draws on. The confirmation holds briefly before fading and resetting for the next scan. A soft ring accents the confirmation. CodeGuardian retains its slowly traced shield. The same project sequences appear in the mobile cards. With reduced motion enabled, the flowers remain open and the completed DeepAttend checkmark remains visible.
 
 Text, portrait geometry and contribution data remain stationary. All motion follows `prefers-reduced-motion`: with that preference enabled, the decorative effects stop and the complete static design remains visible. The README’s links provide interaction through the clickable project and contact cards. There are no JavaScript or hover-dependent controls inside the SVG images.
 

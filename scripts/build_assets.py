@@ -11,20 +11,30 @@ P = dict(paper='#FFF9EF', ink='#243F52', rose='#B65F76', muted='#596A70', sky='#
 # Animate decorative layers only. The portrait, typography and data stay still.
 MOTION = '''
 .breeze{transform-origin:0 150px;animation:breeze 9s ease-in-out infinite}
-.petals{transform-origin:0 0;animation:petals 12s ease-in-out infinite}
+.petals{transform-origin:0 0;animation:petals 8s cubic-bezier(.45,0,.25,1) infinite}
+.flower-core{transform-origin:0 0;animation:flower-core 8s ease-in-out infinite}
 .arch-glint{opacity:0;animation:arch-glint 16s ease-in-out infinite}
 .sun-dust{opacity:.35;animation:sun-dust 10s ease-in-out infinite}
 .sun-dust.late{animation-delay:-4s}
 .sun-dust.later{animation-delay:-7s}
 .scan-light{opacity:0;animation:scan-light 8s ease-in-out infinite}
+.scan-frame{stroke:#B98941;animation:scan-frame 8s ease-in-out infinite}
+.scan-success{transform-origin:0 0;animation:scan-success 8s ease-in-out infinite}
+.check-stroke{stroke-dasharray:100;stroke-dashoffset:0;animation:check-stroke 8s ease-in-out infinite}
+.success-halo{transform-origin:0 0;opacity:0;animation:success-halo 8s ease-out infinite}
 .shield-light{opacity:0;animation:shield-light 11s ease-in-out infinite}
 @keyframes breeze{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
-@keyframes petals{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(6deg)}}
+@keyframes petals{0%,12%,100%{transform:rotate(-14deg) scale(.24);opacity:.65}40%{transform:rotate(2deg) scale(1.04);opacity:1}48%,64%{transform:rotate(0deg) scale(1);opacity:1}90%{transform:rotate(-14deg) scale(.24);opacity:.65}}
+@keyframes flower-core{0%,12%,90%,100%{transform:scale(.72)}40%,64%{transform:scale(1)}}
 @keyframes arch-glint{0%,8%{stroke-dashoffset:100;opacity:0}16%{opacity:.8}64%{stroke-dashoffset:0;opacity:.8}72%,100%{stroke-dashoffset:0;opacity:0}}
 @keyframes sun-dust{0%,100%{transform:translateY(0);opacity:.2}50%{transform:translateY(-12px);opacity:.7}}
-@keyframes scan-light{0%,12%{transform:translateY(0);opacity:0}20%{opacity:.4}62%{transform:translateY(60px);opacity:.4}70%,100%{transform:translateY(60px);opacity:0}}
+@keyframes scan-light{0%,8%{transform:translateY(0);opacity:0}12%{opacity:.7}40%{transform:translateY(60px);opacity:.7}46%,100%{transform:translateY(60px);opacity:0}}
+@keyframes scan-frame{0%,46%,100%{stroke:#B98941}56%,84%{stroke:#52755F}}
+@keyframes scan-success{0%,48%,90%,100%{transform:scale(.65);opacity:0}56%{transform:scale(1.08);opacity:1}62%,83%{transform:scale(1);opacity:1}}
+@keyframes check-stroke{0%,55%,94%,100%{stroke-dashoffset:100}66%,92%{stroke-dashoffset:0}}
+@keyframes success-halo{0%,51%{transform:scale(.9);opacity:0}55%{transform:scale(1);opacity:.35}73%,100%{transform:scale(1.65);opacity:0}}
 @keyframes shield-light{0%,15%{stroke-dashoffset:100;opacity:0}24%{opacity:.65}70%{stroke-dashoffset:0;opacity:.65}80%,100%{stroke-dashoffset:0;opacity:0}}
-@media(prefers-reduced-motion:reduce){.breeze,.petals,.arch-glint,.sun-dust,.scan-light,.shield-light{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.breeze,.petals,.flower-core,.arch-glint,.sun-dust,.scan-light,.scan-frame,.scan-success,.check-stroke,.success-halo,.shield-light{animation:none!important}}
 '''
 
 
@@ -32,11 +42,13 @@ def text(x, y, value, size=24, color='ink', font='body', extra=''):
     return f'<text x="{x}" y="{y}" class="{font}" font-size="{size}" fill="{P.get(color, color)}" {extra}>{escape(value)}</text>'
 
 
-def flower(x, y, scale=1, color='rose', motion=False):
+def flower(x, y, scale=1, color='rose', motion=False, delay=0):
     petals = ''.join(f'<ellipse cx="0" cy="-16" rx="7" ry="13" transform="rotate({a})"/>' for a in range(0, 360, 60))
+    core = f'<circle r="5" fill="{P["gold"]}" stroke="none"/>'
     if motion:
-        petals = f'<g class="petals">{petals}</g>'
-    return f'<g transform="translate({x} {y}) scale({scale})" fill="none" stroke="{P[color]}" stroke-width="1.5">{petals}<circle r="5" fill="{P["gold"]}" stroke="none"/></g>'
+        petals = f'<g class="petals" style="animation-delay:{delay}s">{petals}</g>'
+        core = f'<g class="flower-core" style="animation-delay:{delay}s">{core}</g>'
+    return f'<g transform="translate({x} {y}) scale({scale})" fill="none" stroke="{P[color]}" stroke-width="1.5">{petals}{core}</g>'
 
 
 def sprig(x, y, scale=1, motion=False):
@@ -113,7 +125,7 @@ def hero(mobile=False):
     body += text(50,372,'Exploring web, AI & automation.',23,'muted')
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
-    body += flower(499,69,.60,motion=True)+flower(964,492,.6,motion=True)
+    body += flower(499,69,.60,motion=True)+flower(964,492,.6,motion=True,delay=-3)
     body += dust(973,188)+dust(568,382,'late')+dust(962,365,'later')
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
@@ -177,9 +189,9 @@ def project_illustration(which,x,y,scale=1):
     body = f'<g transform="translate({x} {y}) scale({scale}) translate(-735 -34)">'
     if which==1:
         body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#DCEFF6"/><rect x="754" y="53" width="185" height="126" rx="10" fill="#FFF9EF"/>'
-        body+='<g stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/>'
+        body+='<g class="scan-frame" stroke="#B98941" stroke-width="2.5" fill="none"><path d="M775 88V74H790M918 88V74H903M775 142V157H790M918 142V157H903"/></g><circle cx="846" cy="105" r="18" fill="#B65F76" opacity=".7"/><path d="M816 147Q846 112 876 147" fill="#B65F76" opacity=".7"/>'
         body+='<path class="scan-light" d="M789 84H903" stroke="#52755F" stroke-width="2" stroke-linecap="round"/>'
-        body+='<circle cx="902" cy="153" r="17" fill="#52755F"/><path d="M894 153L900 159L911 146" fill="none" stroke="#FFF9EF" stroke-width="3"/>'
+        body+='<g transform="translate(902 153)"><circle class="success-halo" r="17" fill="none" stroke="#52755F" stroke-width="1.5"/><g class="scan-success"><circle r="17" fill="#52755F"/><path class="check-stroke" d="M-8 0L-2 6L9 -7" pathLength="100" fill="none" stroke="#FFF9EF" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></g></g>'
     else:
         shield='M846 60L895 78V117Q892 147 846 173Q800 147 797 117V78Z'
         body+='<rect x="735" y="34" width="223" height="166" rx="16" fill="#F4E2DF"/>'
