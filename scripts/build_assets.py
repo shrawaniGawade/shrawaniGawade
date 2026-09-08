@@ -164,6 +164,7 @@ def hero(mobile=False):
         arch='M301 905V571A137 137 0 0 1 575 571V905'
         body += f'<path d="{arch}" fill="none" stroke="#B98941" stroke-width="1.2"/>'
         body += text(38,476,'A little code.',30,font='display')+text(38,518,'A lot of',30,font='display')+text(38,560,'curiosity.',30,font='display')
+        body += sprig(63,677,1)+flower(128,660,.75)+flower(64,720,.5)
         body += text(38,870,'@shrawaniGawade',21,'muted')
         svg('hero-mobile.svg',w,h,body,'Shrawani Gawade — Developer, with a curious mind.','A still illustrated portrait. The ending after Developer, with a cycles through curious mind, sweet heart, creative spark, cute side and love for little things, typed and erased with a text cursor. Reduced motion shows the complete first phrase without a cursor.',defs=clip)
         return
@@ -176,6 +177,7 @@ def hero(mobile=False):
     body += hero_typewriter(50,371)
     body += '<path d="M50 411H477" stroke="#DDCDBB"/>'
     body += text(50,457,'A little code. A lot of curiosity.',24,font='display')+text(50,520,'@shrawaniGawade',21,'muted')
+    body += flower(499,69,.60)+flower(966,429,.6)
     body += '<path d="M0 591H1000V616Q1000 640 976 640H24Q0 640 0 616Z" fill="#243F52"/>'
     for x,label in [(48,'Thoughtful interfaces'),(365,'Creative experiments'),(695,'Learning by making')]:
         body+=text(x,622,label,21,'paper')
